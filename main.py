@@ -2,6 +2,7 @@ from fastapi import FastAPI, Header, HTTPException
 from typing import Union
 import time
 
+from pydantic import BaseModel
 from starlette import status
 from starlette.requests import Request
 
@@ -76,6 +77,34 @@ async def print_address(request: Request):
     ip = request.client.host
     print(ip)
     return ip
+
+
+# Request body with JSON object
+class Book(BaseModel):
+    title: str
+    author: str
+    year: int
+    description: Union[str, None] = None
+
+
+'''
+curl --request POST 'localhost:8000/book' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "title": "The Caves of Steel",
+    "author": "Isaac Asimov",
+    "year": 1954
+}
+'''
+
+
+@app.post("/book", status_code=status.HTTP_201_CREATED)
+async def create_book(book: Book):
+
+    return {
+        "status": "Book created",
+        "book": book
+        }
 
 
 def print_usage():
